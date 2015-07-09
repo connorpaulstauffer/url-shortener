@@ -64,10 +64,18 @@ class ShortenedUrl < ActiveRecord::Base
     delete_all(["created_at < ?", 20.minutes.ago])
   end
 
-  # def self.top
-  #   joins('JOIN votes v ON shortened_urls.id = v.shortened_url_id')
-  #   .group('shortened_urls.id').order('SUM(CASE v.upvote WHEN t THEN 1 ELSE 0) - SUM(CASE v.upvote WHEN t THEN 0 else 1)')
-  # end
+  def self.top
+    select('shortened_urls.*, SUM(CASE WHEN upvote THEN 1 ELSE 0 END) upvotes, SUM(CASE WHEN upvote THEN 0 ELSE 1 END) downvotes')
+    .joins('JOIN votes ON shortened_urls.id = votes.shortened_url_id')
+    .group('shortened_urls.id').order('upvotes - downvotes')
+  end
+
+  def self.hot(n)
+    select('shortened_urls.*, SUM(CASE WHEN upvote THEN 1 ELSE 0 END) upvotes, SUM(CASE WHEN upvote THEN 0 ELSE 1 END) downvotes')
+    .joins('JOIN votes ON shortened_urls.id = votes.shortened_url_id')
+    .where(['votes.created_at > ?', n.minutes.ago])
+    .group('shortened_urls.id').order('upvotes - downvotes')
+  end
 
   def num_clicks
     self.visits.count
