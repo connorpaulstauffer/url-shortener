@@ -6,6 +6,7 @@
 #  email      :string
 #  created_at :datetime
 #  updated_at :datetime
+#  premium    :boolean          default("f")
 #
 
 class User < ActiveRecord::Base
@@ -23,5 +24,10 @@ class User < ActiveRecord::Base
            primary_key: :id
 
   has_many :visited_urls, through: :visits, source: :shortened_url
+
+  has_many :votes,
+           class_name: :Vote,
+           foreign_key: :voter_id,
+           primary_key: :id
 
 end

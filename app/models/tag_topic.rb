@@ -20,9 +20,8 @@ class TagTopic < ActiveRecord::Base
   has_many :shortened_urls, through: :taggings, source: :shortened_url
 
   def most_popular_links(n)
-    ShortenedUrl.joins('JOIN taggings t on t.shortened_url_id = shortened_urls.id')
+    shortened_urls
     .joins('LEFT JOIN visits v on v.shortened_url_id = shortened_urls.id')
-    .where(['t.tag_id = ?', self.id])
     .group('shortened_urls.id')
     .order('COUNT(v.id) DESC').limit(n)
   end

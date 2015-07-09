@@ -37,6 +37,11 @@ class ShortenedUrl < ActiveRecord::Base
            foreign_key: :shortened_url_id,
            primary_key: :id
 
+  has_many :votes,
+           class_name: :Vote,
+           foreign_key: :shortened_url_id,
+           primary_key: :id
+
   has_many :tag_topics, through: :taggings, source: :tag_topic
 
 
@@ -58,6 +63,11 @@ class ShortenedUrl < ActiveRecord::Base
   def self.prune
     delete_all(["created_at < ?", 20.minutes.ago])
   end
+
+  # def self.top
+  #   joins('JOIN votes v ON shortened_urls.id = v.shortened_url_id')
+  #   .group('shortened_urls.id').order('SUM(CASE v.upvote WHEN t THEN 1 ELSE 0) - SUM(CASE v.upvote WHEN t THEN 0 else 1)')
+  # end
 
   def num_clicks
     self.visits.count
